@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trackin</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>Trackin</h1>
+      <div id="global-time">Heure actuelle : 00:00</div>
+    </header>
+    <main>
+      <div class="task-bar" id="repondreMessage">
+        <span class="icon material-icons" style="color: #1db954;">message</span>
+        <span class="text">Répondre aux messages</span>
+        <span class="timer" id="timer-repondreMessage">00:00</span>
+      </div>
+      <div class="task-bar" id="verifierPersonnel">
+        <span class="icon material-icons" style="color: #f39c12;">check_circle</span>
+        <span class="text">Vérifier le personnel</span>
+        <span class="timer" id="timer-verifierPersonnel">00:00</span>
+      </div>
+      <div class="task-bar" id="repondreCommentaire">
+        <span class="icon material-icons" style="color: #3498db;">comment</span>
+        <span class="text">Répondre aux commentaires</span>
+        <span class="timer" id="timer-repondreCommentaire">00:00</span>
+      </div>
+      <div class="task-bar" id="remonterInformation">
+        <span class="icon material-icons" style="color: #e74c3c;">arrow_upward</span>
+        <span class="text">Transmettre les informations</span>
+        <span class="timer" id="timer-remonterInformation">00:00</span>
+      </div>
+      <div class="task-bar" id="pause">
+        <span class="icon material-icons" style="color: #f1c40f;">pause</span>
+        <span class="text">Pause</span>
+        <span class="timer" id="timer-pause">00:00</span>
+      </div>
+
+      <!-- Boutons pour réinitialiser et afficher l'historique -->
+      <div class="action-buttons">
+        <button id="reset-button">Réinitialiser</button>
+        <button id="view-history-button">Voir l'historique</button>
+      </div>
+    </main>
+
+    <!-- Modal pour afficher l'historique -->
+    <div id="history-modal" class="modal">
+      <div class="modal-content">
+        <h3>Heures du mois</h3>
+        <ul id="history-list"></ul>
+        <button id="close-modal" class="close-btn">Fermer</button>
+      </div>
+    </div>
+
+    <!-- Modal pour confirmation de réinitialisation -->
+    <div id="confirmation-modal" class="modal">
+      <div class="modal-content">
+        <h3>Confirmer la réinitialisation</h3>
+        <div class="action-buttons">
+          <button id="confirm-reset" class="btn">Réinitialiser</button>
+          <button id="cancel-reset" class="btn">Annuler</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

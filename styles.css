@@ -1,0 +1,228 @@
+/* styles.css */
+body {
+  margin: 0;
+  font-family: 'Inter', Arial, sans-serif; /* Utilisation de la police Inter */
+  background-color: #1e1e1e; /* Couleur de fond ChatGPT */
+  color: #eaeaea; /* Texte clair pour contraste avec le fond sombre */
+}
+
+#app {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+header h1 {
+  font-size: 2rem;
+  color: #a6a6a6; /* Texte du titre plus clair */
+}
+
+#global-time {
+  font-size: 1.5rem; /* Augmentation de la taille de la police */
+  color: #f3a847; /* Couleur dorée pour plus de visibilité */
+  margin-top: 10px;
+  font-weight: bold; /* Mise en gras pour plus de visibilité */
+}
+
+.task-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #2a2a2a; /* Couleur de fond de la barre de tâches ChatGPT */
+  padding: 12px 20px;
+  margin: 10px 0;
+  border-radius: 10px; /* Bordures arrondies */
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.task-bar:hover {
+  background: #3e3e3e; /* Changement de couleur de fond au survol */
+}
+
+.icon {
+  font-size: 1.5rem;
+  transition: color 0.3s ease;
+}
+
+.icon:hover {
+  opacity: 0.8;
+}
+
+.text {
+  flex: 1;
+  margin-left: 10px;
+  font-size: 1.1rem; /* Taille de police similaire à ChatGPT */
+}
+
+.timer {
+  font-size: 1rem;
+  color: #52e1a4; /* Couleur du texte du timer (verte claire) */
+  margin-left: 15px; /* Ajout d'une marge entre la tâche et le décompte */
+}
+
+.action-buttons {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px; /* Ajoute un espace entre les boutons */
+}
+
+.action-buttons button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2a2a2a; /* Fond sombre similaire à celui de la barre de tâches */
+  color: white;
+  padding:12px 24px;
+  border: none;
+  border-radius: 10px; /* Bordures arrondies comme ChatGPT */
+  cursor: pointer;
+  transition: background 0.3s;
+  font-size: 1rem;
+}
+
+.action-buttons button:hover {
+  background: #3e3e3e; /* Couleur de fond au survol similaire */
+}
+
+button .material-icons {
+  margin-right: 8px; /* Espacement entre l'icône et le texte */
+}
+
+/* Modal container */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.modal-content {
+  display: grid;
+  background-color: #2a2a2a; /* Fond modal similaire */
+  padding: 20px 30px;
+  border-radius: 12px; /* Bordures arrondies */
+  max-width: 500px;
+  width: 80%; /* Limite la largeur */
+  color: white;
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2); /* Ombre pour un effet de profondeur */
+  animation: fadeIn 0.3s ease-out; /* Animation d'apparition */
+}
+
+/* Liste des éléments dans le modal */
+#history-list {
+  list-style-type: none;
+  padding: 0;
+  margin-block: 10px;
+  font-size: 1rem;
+}
+
+#history-list li {
+  background-color: #3e3e3e; /* Couleur de fond des éléments */
+  padding: 12px;
+  border-radius: 8px;
+  margin-block: 10px;
+  transition: background-color 0.3s ease;
+}
+
+#history-list li:hover {
+  background-color: #4f4f4f; /* Couleur au survol */
+}
+
+/* Bouton Fermer du Modal */
+.modal .close-btn {
+  background-color: #e84e4e; /* Rouge vif pour attirer l'attention */
+  justify-self: end;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.modal .close-btn:hover {
+  background-color: #c13535; /* Couleur plus foncée au survol */
+}
+
+/* Modal de confirmation pour la réinitialisation */
+#confirmation-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  justify-content: center;
+  align-items: center;
+}
+
+#confirmation-modal .modal-content {
+  padding: 30px;
+  text-align: center;
+  width: 80%;
+  max-width: 400px;
+  background-color: #333; /* Fond légèrement plus sombre pour distinction */
+  border-radius: 12px;
+}
+
+#confirmation-modal .modal-content h3 {
+  font-size: 1rem;
+  color: #f3a847; /* Couleur dorée pour attirer l'attention */
+  margin-bottom: 20px;
+}
+
+#confirmation-modal .action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+#confirmation-modal .action-buttons .btn {
+  padding: 12px 24px;
+  background-color: #2a2a2a; /* Couleur verte pour confirmer */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s;
+}
+
+#confirmation-modal .action-buttons .btn:hover {
+  background-color: #3e3e3e;
+}
+
+#confirmation-modal .action-buttons .btn:nth-child(2) {
+  background-color: #e84e4e; /* Rouge pour annuler */
+}
+
+#confirmation-modal .action-buttons .btn:nth-child(2):hover {
+  background-color: #c13535;
+}
+
+/* Animation d'apparition du modal */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
