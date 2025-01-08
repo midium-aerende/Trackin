@@ -1,25 +1,78 @@
+// Importer les fonctions nécessaires de Firebase
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+import { getDatabase, ref, set, get, child } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js";
+
+// Configuration Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyBlwpQoOZmKHrWNIxdeWfCfcgdBDAr-Vy8",
+  authDomain: "database-a9135.firebaseapp.com",
+  databaseURL: "https://database-a9135-default-rtdb.firebaseio.com",
+  projectId: "database-a9135",
+  storageBucket: "database-a9135.firebasestorage.app",
+  messagingSenderId: "728924033150",
+  appId: "1:728924033150:web:0663f19cdb4f370da5482f",
+  measurementId: "G-WR2S6NW2SH"
+};
+
+// Initialiser Firebase
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+
 const tasks = document.querySelectorAll('.task-bar');
 let timers = {};
 let activeTask = null;
 let globalTime = 0;  // Temps global du jour en secondes
 const historyKey = 'trackinHistory'; // Clé pour stocker l'historique des heures par jour
 
-// Charger les données sauvegardées du localStorage
+// Charger les données sauvegardées de Firebase
 window.onload = () => {
-  const savedTimers = JSON.parse(localStorage.getItem('trackinTimers')) || {};
-  timers = { ...savedTimers };
+  const today = new Date().toISOString().split('T')[0]; // Date d'aujourd'hui au format YYYY-MM-DD
 
-  // Récupérer l'heure globale de la journée (en secondes)
-  const savedGlobalTime = localStorage.getItem('globalTime');
-  globalTime = savedGlobalTime ? parseInt(savedGlobalTime, 10) : 0;
+  // Charger les minuteries sauvegardées depuis Firebase
+  const timersRef = ref(database, 'trackinTimers');
+  get(timersRef).then((snapshot) => {
+    if (snapshot.exists()) {
+      timers = snapshot.val();
+    } else {
+      timers = {}; // Si aucune donnée de minuteries existantes, initialiser un objet vide
+    }
 
-  updateTimers();
-  updateGlobalTime();
+    // Charger l'heure globale du jour depuis Firebase
+    const globalTimeRef = ref(database, 'globalTime');
+    get(globalTimeRef).then((snapshot) => {
+      if (snapshot.exists()) {
+        globalTime = snapshot.val();
+      }
 
+      // Vérifier si l'entrée pour la date actuelle existe dans l'historique
+      const historyRef = ref(database, 'history/' + today);
+      get(historyRef).then((snapshot) => {
+        if (!snapshot.exists()) {
+          // La date n'existe pas dans l'historique, réinitialiser les minuteries et l'heure globale à zéro
+          resetDailyTimers(); // Réinitialiser les minuteries des tâches
+          globalTime = 0; // Mettre globalTime à zéro en temps réel
+          updateGlobalTime(); // Mettre à jour l'affichage de l'heure globale
+        } else {
+          // Si l'entrée existe dans l'historique, charger les minuteries et l'heure globale
+          updateTimers(); // Mettre à jour l'affichage des minuteries des tâches
+          updateGlobalTime(); // Mettre à jour l'affichage de l'heure globale
+        }
+      }).catch((error) => {
+        console.error("Erreur lors de la récupération de l'historique : ", error);
+      });
+
+    }).catch((error) => {
+      console.error("Erreur lors de la récupération de l'heure globale : ", error);
+    });
+  }).catch((error) => {
+    console.error("Erreur lors de la récupération des minuteries : ", error);
+  });
+
+  // Ajouter les autres gestionnaires d'événements pour l'interface
   const resetButton = document.getElementById('reset-button');
   const viewHistoryButton = document.getElementById('view-history-button');
   const closeModalButton = document.getElementById('close-modal');
-  
+
   const confirmationModal = document.getElementById('confirmation-modal');
   const confirmResetButton = document.getElementById('confirm-reset');
   const cancelResetButton = document.getElementById('cancel-reset');
@@ -51,10 +104,10 @@ window.onload = () => {
   }
 };
 
-// Sauvegarder les minuteries et l'heure globale dans le localStorage
+// Sauvegarder les minuteries et l'heure globale dans Firebase
 const saveTimers = () => {
-  localStorage.setItem('trackinTimers', JSON.stringify(timers));
-  localStorage.setItem('globalTime', globalTime.toString());
+  set(ref(database, 'trackinTimers'), timers);
+  set(ref(database, 'globalTime'), globalTime);
 };
 
 // Mettre à jour les minuteries dans l'interface
@@ -62,7 +115,10 @@ const updateTimers = () => {
   for (const taskId in timers) {
     const timerElement = document.getElementById(`timer-${taskId}`);
     if (timerElement) {
-      timerElement.textContent = formatTime(timers[taskId].time || 0); // Afficher 0 si aucune minute
+      const taskTimer = timers[taskId]; // Récupérer l'objet de minuterie de la tâche
+      if (taskTimer && taskTimer.hasOwnProperty('time')) {
+        timerElement.textContent = formatTime(taskTimer.time || 0); // Afficher 0 si aucune minute
+      }
     }
   }
 };
@@ -82,27 +138,13 @@ const formatTime = (seconds) => {
 
 // Démarrer un minuteur pour une tâche
 const startTimer = (taskId) => {
-  // Exclure la pause du calcul de l'heure globale
-  if (taskId === "pause") {
-    if (!timers[taskId]) {
-      timers[taskId] = { time: 0, intervalId: null };
-    }
-    if (!timers[taskId].intervalId) {
-      timers[taskId].intervalId = setInterval(() => {
-        timers[taskId].time += 1;
-        updateTimers();
-        saveTimers();
-      }, 1000);
-    }
-    return; // Ne pas affecter l'heure globale lorsque la pause est active
+  // Vérifier si l'objet timer pour la tâche existe
+  if (!timers[taskId]) {
+    timers[taskId] = { time: 0, intervalId: null };
   }
 
   if (activeTask && activeTask !== taskId) {
     clearInterval(timers[activeTask].intervalId);
-  }
-
-  if (!timers[taskId]) {
-    timers[taskId] = { time: 0, intervalId: null };
   }
 
   if (!timers[taskId].intervalId) {
@@ -158,37 +200,93 @@ const resetDailyTimers = () => {
   saveTimers();
 };
 
-// Ajouter un événement pour afficher l'historique des heures du mois
 const viewHistory = () => {
-  const history = JSON.parse(localStorage.getItem(historyKey)) || [];
   const historyList = document.getElementById('history-list');
   historyList.innerHTML = ''; // Vider la liste avant de la remplir
 
-  history.forEach((entry) => {
-    const listItem = document.createElement('li');
-    listItem.textContent = `${entry.date}: ${entry.time}`;
-    historyList.appendChild(listItem);
-  });
+  // Référence vers la collection 'history' dans Firebase Realtime Database
+  const historyRef = ref(database, 'history');
 
-  document.getElementById('history-modal').style.display = 'flex';
+  // Récupérer l'historique depuis Firebase Realtime Database
+  get(historyRef).then((snapshot) => {
+    if (snapshot.exists()) {
+      snapshot.forEach((childSnapshot) => {
+        const entry = childSnapshot.val();
+        const listItem = document.createElement('li');
+        
+        // Formater la date
+        const formattedDate = new Date(entry.date).toLocaleDateString();  // Format de la date local
+        
+        // Créer un élément pour la date et l'heure globale
+        const dateInfo = document.createElement('div');
+        dateInfo.classList.add('history-date');
+        dateInfo.innerHTML = `<span>${formattedDate}</span>
+        <span>${entry.time}</span>`;
+        
+        // Créer un conteneur pour les tâches (accordéon)
+        const tasksContainer = document.createElement('div');
+        tasksContainer.classList.add('tasks-container');
+        
+        // Ajouter les tâches sous cette date
+        if (entry.tasks) {
+          for (const taskId in entry.tasks) {
+            const task = entry.tasks[taskId];
+            const taskItem = document.createElement('div');
+            taskItem.classList.add('task-item');
+            taskItem.innerHTML = `<span>${taskId} : </span><span>${task.time}</span>`;
+            tasksContainer.appendChild(taskItem);
+          }
+        }
+
+        // Ajouter un gestionnaire d'événements pour ouvrir/fermer les tâches lorsqu'on clique sur la date
+        dateInfo.addEventListener('click', () => {
+          tasksContainer.classList.toggle('open');
+        });
+
+        // Ajouter les éléments à la liste
+        listItem.appendChild(dateInfo);
+        listItem.appendChild(tasksContainer);
+        historyList.appendChild(listItem);
+      });
+    } else {
+      const noHistoryItem = document.createElement('li');
+      noHistoryItem.textContent = "Aucun historique disponible.";
+      historyList.appendChild(noHistoryItem);
+    }
+
+    document.getElementById('history-modal').style.display = 'flex';
+  }).catch((error) => {
+    console.error('Erreur lors de la récupération de l\'historique :', error);
+  });
 };
 
-// Sauvegarder l'historique des heures comptabilisées par jour
 const saveHistory = () => {
   const currentDate = new Date().toISOString().split('T')[0]; // Format YYYY-MM-DD
   const timeFormatted = formatTime(globalTime);
 
-  // Charger l'historique existant
-  const history = JSON.parse(localStorage.getItem(historyKey)) || [];
+  // Créer un objet pour stocker les tâches et leur temps
+  const tasksData = {};
+  for (const taskId in timers) {
+    if (timers[taskId].time > 0) {
+      tasksData[taskId] = { time: formatTime(timers[taskId].time) };
+    }
+  }
 
-  // Supprimer les anciennes entrées pour la même date
-  const updatedHistory = history.filter(entry => entry.date !== currentDate);
+  // Référence vers l'historique dans la Realtime Database
+  const historyRef = ref(database, 'history/' + currentDate);
 
-  // Ajouter la nouvelle entrée avec la date actuelle
-  updatedHistory.push({ date: currentDate, time: timeFormatted });
-
-  // Sauvegarder l'historique mis à jour
-  localStorage.setItem(historyKey, JSON.stringify(updatedHistory));
+  // Enregistrer l'entrée de l'historique avec les tâches dans Firebase Realtime Database
+  set(historyRef, {
+    date: currentDate,
+    time: timeFormatted,
+    tasks: tasksData // Ajouter les tâches et leur temps
+  })
+  .then(() => {
+    console.log('Historique et tâches sauvegardés avec succès');
+  })
+  .catch((error) => {
+    console.error('Erreur lors de la sauvegarde de l\'historique :', error);
+  });
 };
 
 // Ajouter un événement pour sauvegarder l'historique chaque jour

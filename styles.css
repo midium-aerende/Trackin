@@ -226,3 +226,74 @@ button .material-icons {
     transform: scale(1);
   }
 }
+
+.tasks-container.open {
+  display: block;
+}
+
+.task-item {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background-color: #4f4f4f; /* Fond légèrement plus clair pour chaque tâche */
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+.task-item:hover {
+  background-color: #5f5f5f; /* Changement de couleur au survol de chaque tâche */
+}
+
+.task-item span {
+  font-size: 1rem;
+  color: #eaeaea; /* Texte clair */
+}
+
+.task-item .task-name {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.task-item .task-time {
+  font-style: italic;
+  color: #52e1a4; /* Couleur verte pour le temps */
+}
+
+.history-date {
+  display: flex;
+  cursor: pointer; /* Change le curseur pour indiquer que c'est cliquable */
+  font-size: 1rem;
+  padding: 8px 10px;
+  background-color: #3e3e3e; /* Fond de la date similaire à l'arrière-plan des tâches */
+  border-radius: 8px;
+  justify-content: space-between;
+  transition: background-color 0.3s ease;
+}
+
+.history-date:hover {
+  background-color: #4f4f4f; /* Changement de couleur de fond de la date au survol */
+}
+
+/* Animation de l'accordéon */
+.tasks-container {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+  padding-left: 10px;
+}
+
+.tasks-container.open {
+  max-height: 500px; /* Valeur haute pour permettre l'extension complète des tâches */
+  transition: max-height 0.3s ease-in;
+}
+
+.task-item .task-name {
+  flex: 1;
+}
+
+.task-item .task-time {
+  color: #52e1a4;
+  margin-left: 10px;
+}
